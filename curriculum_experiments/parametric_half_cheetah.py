@@ -38,6 +38,8 @@ class MBHalfCheetahEnv(LocomotionEnv, HalfCheetahEnv):
         )
         self.dim_state=18
         self.dim_action=6
+        self.num_states=None
+        self.num_actions=None
 
     def step(self, action):
         x_position_before = self.sim.data.qpos[0]
