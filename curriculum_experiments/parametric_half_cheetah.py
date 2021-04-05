@@ -36,8 +36,8 @@ class MBHalfCheetahEnv(LocomotionEnv, HalfCheetahEnv):
         HalfCheetahEnv.__init__(
             self, ctrl_cost_weight=ctrl_cost_weight, forward_reward_weight=1.0
         )
-        self.dim_state=18
-        self.dim_action=6
+        self.dim_state=(18,)
+        self.dim_action=(6,)
         self.num_states=None
         self.num_actions=None
         self.goal=None
