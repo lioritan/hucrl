@@ -1,22 +1,12 @@
 import datetime
-import importlib
 import os
 import pickle
 
-import torch
-from dotmap import DotMap
-from rllib.dataset.transforms import ActionScaler, MeanFunction, DeltaState
-from rllib.model import AbstractModel
-from rllib.reward.utilities import tolerance
+from rllib.algorithms.mpc import CEMShooting
 from tqdm import tqdm
-import numpy as np
 
 from curriculum_experiments.parametric_ant import AntWrapper
 from curriculum_experiments.parametric_half_cheetah import HalfCheetahWrapper
-from exps import get_mpc_agent, get_mb_mpo_agent
-from exps.inverted_pendulum.util import PendulumReward, StateTransform, get_mbmpo_parser
-from curriculum_experiments.parametric_pendulum_continuous import PendulumContinuousWrapper, \
-    large_state_termination
 from curriculum_experiments.random_teacher import RandomTeacher
 from curriculum_experiments.task_difficulty_estimate import estimate_task_difficulties
 from hucrl.agent import MPCAgent
@@ -30,16 +20,13 @@ def run_on_parameteric_env(steps_per_task, tasks, wrapper, easy_task):
     dynamical_model = HallucinatedModel.default(ref_env, beta=1.0)
 
     student = MPCAgent.default(
+        mpc_policy=CEMShooting(dynamical_model=dynamical_model,
+                               reward_model=ref_env.reward_model(),
+                               horizon=10,
+                               num_samples=200),
         environment=ref_env,
-        dynamical_model=dynamical_model,
-        reward_model=ref_env.reward_model(),
         thompson_sampling=False,
-        horizon=10,
-        num_samples=200,
-        mpc_solver_name="CEMShooting",
-        model_learn_exploration_episodes=0,
         exploration_episodes=1,
-        calibrate=False
     )
 
     date_string = datetime.datetime.today().strftime('%Y-%m-%d %H')
