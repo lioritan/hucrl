@@ -3,6 +3,7 @@ import os
 import pickle
 
 from rllib.algorithms.mpc import CEMShooting
+from rllib.policy import MPCPolicy
 from tqdm import tqdm
 
 from curriculum_experiments.parametric_ant import AntWrapper
@@ -19,12 +20,11 @@ def run_on_parameteric_env(steps_per_task, tasks, wrapper, easy_task):
     ref_env = wrapper.create_env(easy_task)
     dynamical_model = HallucinatedModel.default(ref_env, beta=1.0)
 
-    student = MPCAgent.default(
-        mpc_policy=CEMShooting(dynamical_model=dynamical_model,
-                               reward_model=ref_env.reward_model(),
-                               horizon=10,
-                               num_samples=200),
-        environment=ref_env,
+    student = MPCAgent(
+        mpc_policy=MPCPolicy(mpc_solver=CEMShooting(dynamical_model=dynamical_model,
+                                                    reward_model=ref_env.reward_model(),
+                                                    horizon=10,
+                                                    num_samples=200)),
         thompson_sampling=False,
         exploration_episodes=1,
     )
